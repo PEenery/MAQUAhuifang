@@ -1,0 +1,352 @@
+/*
+ * Global styles for the Pure Energy customer report application.
+ * Defines a soft brand colour palette and common components such as cards and buttons.
+ */
+
+/* CSS variables for easy theming */
+:root {
+  --brand: #00BED6;       /* Pure Energy brand blue */
+  --bg: #F5FAFC;          /* light page background */
+  --card: #FFFFFF;        /* card background */
+  --text: #0B1821;        /* primary text colour */
+  --radius: 12px;         /* border radius for cards/buttons */
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* subtle shadow */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Noto Sans TC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Header containing the brand banner */
+/* Header containing the brand banner */
+.header {
+  /* Header spans full width but centers its contents so that the banner never exceeds
+     the same maximum width as the rest of the page.  We keep the background the
+     same colour as the page to avoid contrasting edges. */
+  width: 100%;
+  background: var(--bg);
+  color: #ffffff;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.header .banner {
+  display: block;
+  /* Restrict banner width to be no wider than the page content and centre it horizontally. */
+  width: 100%;
+  max-width: 900px;
+  height: auto;
+  /* Limit the banner height to avoid overwhelming the page.  The aspect ratio is preserved
+     because we do not set a fixed height; the max-height prevents the image from
+     becoming too tall on large screens. */
+  max-height: 40vh;
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+/* Main container for page content */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Card component for grouping content sections */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+  padding: 24px;
+}
+
+/* Section titles */
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+
+/* Grid for displaying multiple images */
+.report-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.report-images img {
+  flex: 1 1 calc(33.333% - 12px);
+  max-width: calc(33.333% - 12px);
+  border-radius: var(--radius);
+  object-fit: cover;
+  box-shadow: var(--shadow);
+  /* 保持圖片正方形比例，類似微信排版 */
+  aspect-ratio: 1 / 1;
+}
+
+/* Video grid: display fixed videos in a grid layout */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.video-grid video {
+  width: 100%;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: #000;
+
+  /* 提高影片 z-index 以便覆蓋層可以在其之上使用較高的 z-index */
+  position: relative;
+  z-index: 1;
+}
+
+/* 包裹影片的容器，用於放置自定義播放按鈕 */
+.video-wrap {
+  position: relative;
+  width: 100%;
+}
+/* 自定義播放按鈕覆蓋在影片上方 */
+.play-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  /* 確保播放覆蓋層在影片之上 */
+  z-index: 2;
+}
+.play-overlay::before {
+  content: "";
+  display: block;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  /* 調整邊框寬度以增大三角形尺寸 */
+  /* 放大播放按鈕三角形尺寸，使其在手機上更明顯 */
+  /* 再次放大三角形尺寸，使播放按鈕更顯眼 */
+  border-width: 36px 0 36px 60px;
+  border-color: transparent transparent transparent #ffffff;
+}
+/* 播放中隱藏覆蓋按鈕 */
+.video-wrap.video-playing .play-overlay {
+  display: none;
+}
+
+/* Poster and wrapper styling */
+.poster-wrap {
+  margin-top: 12px;
+}
+.poster {
+  width: 100%;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: block;
+}
+
+/* 強調標題顏色，用於保養紀錄和提提你區塊 */
+.highlight-title {
+  color: var(--brand);
+}
+
+/* 圖片輪播區塊 */
+.carousel {
+  position: relative;
+  width: 100%;
+  /* Keep content within viewport and allow peeking previews via padding */
+  overflow: hidden;
+  padding: 0 7%;
+}
+.slides-container {
+  display: flex;
+  gap: 12px;
+  transition: transform 0.3s ease;
+  will-change: transform;
+}
+.slide {
+  /* Each slide takes up 86% of the carousel width, leaving room for previews */
+  flex: 0 0 86%;
+  position: relative;
+  opacity: 0.55;
+  transform: scale(0.97);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.slide img {
+  width: 100%;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  object-fit: cover;
+  /* Default image ratio for slides */
+  aspect-ratio: 3 / 4;
+}
+
+/* Active slide is fully opaque and slightly larger */
+.slide.active {
+  opacity: 1;
+  transform: scale(1);
+}
+.carousel-controls {
+  text-align: center;
+  margin-top: 12px;
+}
+.carousel-btn {
+  background: var(--brand);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  /* Bigger arrows for better mobile usability */
+  font-size: 2rem;
+  cursor: pointer;
+  margin: 0 4px;
+}
+.carousel-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* 提示區塊的圖片樣式 */
+.tip-image {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* 公司介紹圖片區塊樣式 */
+.company-intro-img {
+  width: 100%;
+  display: block;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* 在較小的螢幕上改為兩欄顯示圖片 */
+@media (max-width: 600px) {
+  .report-images img {
+    flex: 1 1 calc(50% - 12px);
+    max-width: calc(50% - 12px);
+  }
+
+  /* 在小螢幕上縮小容器內邊距，避免內容看起來偏左 */
+  .container {
+    padding: 16px;
+  }
+
+  /* 調整輪播在小螢幕的間距，但保留左右半露圖片效果 */
+  .slides-container {
+    gap: 8px;
+  }
+  /* 調整幻燈片內圖片比例，使其在手機上更合適 */
+  .slide img {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+/* Preview area on the upload page */
+.preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.preview img {
+  max-width: 150px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* File input styling */
+.file-input {
+  display: block;
+  margin: 12px 0;
+}
+
+/* General button styling */
+button {
+  display: inline-block;
+  background: var(--brand);
+  color: #ffffff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+button:hover {
+  background: #009CB3; /* slightly darker brand shade on hover */
+}
+
+/* 日期輸入框樣式 */
+.date-input {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #CCCCCC;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+
+/* 影像放大顯示的遮罩層 */
+#imageOverlay {
+  display: none;            /* 默認隱藏 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+#imageOverlay img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* 視頻放大播放遮罩層 */
+#videoOverlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+#videoOverlay video {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}

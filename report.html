@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>維修回訪報告</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- 頂部橫幅：顯示品牌橫幅圖片一次，適合手機瀏覽 -->
+  <header class="header">
+    <img class="banner" src="assets/banner.jpg" alt="MAQUA 服務小回顧">
+  </header>
+  <!-- 主內容容器 -->
+  <main class="container">
+    <!-- 固定問候語區塊：內容由腳本動態生成，可根據日期插入提示 -->
+    <section class="card text-section">
+      <div id="greeting"></div>
+    </section>
+    <!-- 保養紀錄區塊：顯示保養紀錄照片，以左右滑動方式呈現 -->
+    <section class="card">
+      <h2 class="section-title highlight-title">保養紀錄</h2>
+      <div class="carousel">
+        <div class="slides-container" id="slidesContainer"></div>
+        <div class="carousel-controls">
+          <button class="carousel-btn prev" aria-label="上一張">‹</button>
+          <button class="carousel-btn next" aria-label="下一張">›</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 提提你提醒區塊：顯示服務資訊和小提示，並包含示意圖片與固定影片 -->
+    <section class="card">
+      <h2 class="section-title highlight-title">提提你</h2>
+      <p>以下是我們的服務資訊與小提示，歡迎您收藏。如有任何疑問或需要協助，請隨時聯繫我們的客服。</p>
+      <!-- 固定影片：使用 grid 排版，使影片並排顯示；每段影片包裹在 video-wrap 中，覆蓋自定義播放按鈕 -->
+      <div class="video-grid">
+        <div class="video-wrap">
+          <video controls playsinline preload="metadata">
+            <source src="assets/19_1753414480.mp4" type="video/mp4" />
+          </video>
+          <button class="play-overlay" aria-label="播放"></button>
+        </div>
+        <div class="video-wrap">
+          <video controls playsinline preload="metadata">
+            <source src="assets/23_1753414482.mp4" type="video/mp4" />
+          </video>
+          <button class="play-overlay" aria-label="播放"></button>
+        </div>
+        <div class="video-wrap">
+          <video controls playsinline preload="metadata">
+            <source src="assets/24_1753414485.mp4" type="video/mp4" />
+          </video>
+          <button class="play-overlay" aria-label="播放"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 公司介紹圖片區塊：在頁面底部展示公司相關宣傳圖片 -->
+    <section class="card company-intro">
+      <img src="assets/251753414487_.pic_hd.jpg" alt="公司介紹" class="company-intro-img">
+    </section>
+    <!-- 服務提示圖示移至底部作為公司介紹 -->
+    <section class="card">
+      <img src="assets/WX20250912-151515.png" alt="公司介紹圖示" class="company-intro-img">
+    </section>
+  </main>
+  <!-- 圖片放大顯示遮罩 -->
+  <div id="imageOverlay" onclick="hideOverlay()">
+    <img id="overlayImg" src="" alt="放大圖片">
+  </div>
+
+  <!-- 影片放大播放遮罩 -->
+  <div id="videoOverlay" onclick="hideVideoOverlay(event)">
+    <video id="overlayVideo" controls playsinline></video>
+  </div>
+  <!-- 載入報告圖片的腳本：支援 ids 參數和 urls 參數 -->
+  <script>
+    /**
+     * 取得網址查詢參數
+     * @param {string} name 參數名稱
+     * @returns {string|null}
+     */
+    function getQueryParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    // 輪播容器與控制按鈕
+    const slidesContainer = document.getElementById('slidesContainer');
+    const prevBtn = document.querySelector('.carousel-btn.prev');
+    const nextBtn = document.querySelector('.carousel-btn.next');
+    const idsParam = getQueryParam('ids');
+    const urlsParam = getQueryParam('urls');
+    let currentSlideIndex = 0;
+
+    // 根據日期動態生成問候文案
+    (function generateGreeting() {
+      const greetingDiv = document.getElementById('greeting');
+      if (!greetingDiv) return;
+      const dateParam = getQueryParam('date');
+      let dateHtml = '';
+      if (dateParam) {
+        try {
+          // 直接解析 yyyy-mm-dd，避免時區偏移
+          const parts = dateParam.split('-');
+          if (parts.length === 3) {
+            const y = parseInt(parts[0], 10);
+            const m = parseInt(parts[1], 10);
+            const d = parseInt(parts[2], 10);
+            if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
+              const formatted = `${y}年${m}月${d}日`;
+              dateHtml = `<p>下一次保養預計於 <strong>${formatted}</strong>，屆時我們將再次為您服務。</p>`;
+            }
+          }
+        } catch (e) {
+          console.warn('無法解析日期參數');
+        }
+      }
+      greetingDiv.innerHTML = `
+        <p>您好啊～我是 <strong>Pure Energy 淨水服務</strong> 的客服！</p>
+        <p>這次為您提供的是<strong>保養維修記錄</strong>，感謝您持續信任我們的貼心服務！</p>
+        <p>如果您在使用過程中遇到任何問題，或者需要我們幫忙，請隨時聯絡我們，我們一定會及時為您服務！</p>
+        ${dateHtml}
+        <p>最後為了讓服務更周到，以下是一份簡單的小問卷 <a href="http://forms.gle/1mtZCkrerNMY8iZA8" target="_blank">http://forms.gle/1mtZCkrerNMY8iZA8</a></p>
+      `;
+    })();
+    
+    /**
+     * 將圖片網址（或 public_id）建立為輪播幻燈片
+     * @param {string[]} list 圖片網址或 public_id 陣列
+     */
+    function appendImages(list) {
+      list.forEach(item => {
+        const slide = document.createElement('div');
+        slide.classList.add('slide');
+        const img = document.createElement('img');
+        // 如果包含 http(s) 開頭視為完整網址；否則視為 Cloudinary public_id
+        if (/^https?:\/\//i.test(item)) {
+          img.src = item;
+        } else {
+          // 如果沒有副檔名，預設使用 .jpg
+          const hasExt = /\.(jpg|jpeg|png|gif|webp)$/i.test(item);
+          const idWithExt = hasExt ? item : `${item}.jpg`;
+          img.src = `https://res.cloudinary.com/djw2gafqe/image/upload/${idWithExt}`;
+        }
+        // 點擊圖片時顯示覆蓋層大圖
+        img.style.cursor = 'pointer';
+        img.addEventListener('click', () => {
+          showOverlay(img.src);
+        });
+        slide.appendChild(img);
+        slidesContainer.appendChild(slide);
+      });
+      // 初始化幻燈片位置
+      updateSlide();
+    }
+
+    /**
+     * 更新幻燈片位置和按鈕狀態。
+     * 使用視口寬度和 padding 來確保當前幻燈片置中，並在兩側保留預覽
+     */
+    function updateSlide() {
+      const slides = Array.from(slidesContainer.children);
+      if (!slides.length) return;
+      // 更新激活樣式
+      slides.forEach((s, i) => s.classList.toggle('active', i === currentSlideIndex));
+      const active = slides[currentSlideIndex];
+      const viewport = slidesContainer.parentElement; // .carousel 元素
+      const styles = getComputedStyle(viewport);
+      const padL = parseFloat(styles.paddingLeft) || 0;
+      const padR = parseFloat(styles.paddingRight) || 0;
+      const viewportWidth = viewport.clientWidth - padL - padR;
+      // offsetLeft 包含容器 paddingLeft；需扣除以便計算移動量
+      const offsetLeft = active.offsetLeft - padL;
+      // 計算需平移的距離，使 active 位於視口中央
+      const shift = offsetLeft - (viewportWidth - active.clientWidth) / 2;
+      slidesContainer.style.transform = `translateX(${-shift}px)`;
+      // 更新按鈕狀態
+      if (prevBtn) prevBtn.disabled = currentSlideIndex === 0;
+      if (nextBtn) nextBtn.disabled = currentSlideIndex >= slides.length - 1;
+    }
+
+    // 前往上一張幻燈片
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        if (currentSlideIndex > 0) {
+          currentSlideIndex--;
+          updateSlide();
+        }
+      });
+    }
+
+    // 前往下一張幻燈片
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        const slideCount = slidesContainer.children.length;
+        if (currentSlideIndex < slideCount - 1) {
+          currentSlideIndex++;
+          updateSlide();
+        }
+      });
+    }
+
+    // 顯示放大的圖片
+    function showOverlay(src) {
+      const overlay = document.getElementById('imageOverlay');
+      const overlayImg = document.getElementById('overlayImg');
+      overlayImg.src = src;
+      overlay.style.display = 'flex';
+    }
+
+    // 隱藏放大的圖片
+    function hideOverlay() {
+      const overlay = document.getElementById('imageOverlay');
+      overlay.style.display = 'none';
+    }
+
+    // 顯示影片放大覆蓋層
+    function showVideoOverlay(src) {
+      const overlay = document.getElementById('videoOverlay');
+      const videoEl = document.getElementById('overlayVideo');
+      if (!videoEl) return;
+      videoEl.src = src;
+      overlay.style.display = 'flex';
+      // 嘗試自動播放影片
+      setTimeout(() => {
+        try { videoEl.play(); } catch (e) {}
+      }, 0);
+    }
+    // 隱藏影片放大覆蓋層
+    function hideVideoOverlay(event) {
+      // 如果點擊的是影片本身，則不要關閉覆蓋層
+      if (event && event.target && event.target.id === 'overlayVideo') return;
+      const overlay = document.getElementById('videoOverlay');
+      const videoEl = document.getElementById('overlayVideo');
+      if (videoEl) {
+        try { videoEl.pause(); } catch (e) {}
+        videoEl.removeAttribute('src');
+      }
+      overlay.style.display = 'none';
+    }
+
+    if (urlsParam) {
+      try {
+        const decoded = decodeURIComponent(urlsParam);
+        const list = decoded.split(',').filter(Boolean);
+        if (list.length) {
+          appendImages(list);
+        } else {
+          if (slidesContainer) slidesContainer.innerHTML = '<p>沒有找到照片資料。</p>';
+        }
+      } catch (err) {
+        console.error('解析圖片網址失敗:', err);
+        if (slidesContainer) slidesContainer.innerHTML = '<p>解析圖片網址失敗。</p>';
+      }
+    } else if (idsParam) {
+      try {
+        const decodedIds = decodeURIComponent(idsParam);
+        const list = decodedIds.split(',').filter(Boolean);
+        if (list.length) {
+          appendImages(list);
+        } else {
+          if (slidesContainer) slidesContainer.innerHTML = '<p>沒有找到照片資料。</p>';
+        }
+      } catch (err) {
+        console.error('解析圖片標識失敗:', err);
+        if (slidesContainer) slidesContainer.innerHTML = '<p>解析圖片標識失敗。</p>';
+      }
+    } else {
+      if (slidesContainer) slidesContainer.innerHTML = '<p>沒有找到照片資料。</p>';
+    }
+  </script>
+  <!-- 自定義播放按鈕行為：當點擊覆蓋層時播放影片，影片暫停時恢復覆蓋層 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const wraps = document.querySelectorAll('.video-wrap');
+      wraps.forEach(wrap => {
+        const video = wrap.querySelector('video');
+        const overlay = wrap.querySelector('.play-overlay');
+        // 顯示播放按鈕
+        const showPlayButton = () => {
+          if (video.paused) {
+            overlay.style.display = 'flex';
+          }
+        };
+        // 隱藏播放按鈕
+        const hidePlayButton = () => {
+          overlay.style.display = 'none';
+        };
+        // 點擊覆蓋按鈕時放大播放
+        overlay.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const sourceEl = wrap.querySelector('source');
+          if (sourceEl) {
+            showVideoOverlay(sourceEl.getAttribute('src'));
+          }
+        });
+        // 點擊影片容器本身也放大播放
+        const sourceEl = wrap.querySelector('source');
+        if (sourceEl) {
+          wrap.addEventListener('click', () => {
+            showVideoOverlay(sourceEl.getAttribute('src'));
+          });
+        }
+        // 視訊播放按鈕在此版本不控制暫停/播放，因此一直顯示
+      });
+    });
+  </script>
+</body>
+</html>
